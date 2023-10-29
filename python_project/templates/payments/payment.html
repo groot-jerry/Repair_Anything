@@ -1,0 +1,89 @@
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!------ Include the above in your HEAD tag ---------->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <div id="login">
+        <h3 class="text-center text-white pt-5">Payment Gatway</h3>
+        <div class="container">
+            <div id="login-row" class="row justify-content-center align-items-center">
+                <div id="login-column" class="col-md-6">
+                    <h3 class="text-center text-info">Make Payment</h3><br>
+                    <div id="login-box" class="col-md-12">
+                       
+                            <p>Product: {{ product.name }}</p>
+                                 <p>Amount: ${{ product.amount }}</p>
+
+    <!-- Stripe Payment Form -->
+    <form method="post">
+        {% csrf_token %}
+        <div id="card-element">
+            <!-- A Stripe Element will be inserted here. -->
+        </div>
+
+        <!-- Used to display form errors. -->
+        <div id="card-errors" role="alert"></div><br>
+
+        <button id="submit-button">Pay ${{ product.amount }}</button>
+    </form>
+
+    <script>
+        // Create a Stripe client
+        var stripe = Stripe('your-stripe-publishable-key');
+
+        // Create an instance of Elements
+        var elements = stripe.elements();
+
+        // Create an instance of the card Element
+        var card = elements.create('card');
+
+        // Add an instance of the card Element into the `card-element` div
+        card.mount('#card-element');
+
+        // Handle form submission
+        var form = document.querySelector('form');
+        var errorElement = document.getElementById('card-errors');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                    // Inform the user if there was an error
+                    errorElement.textContent = result.error.message;
+                } else {
+                    // Send the token to your server
+                    stripeTokenHandler(result.token);
+                }
+            });
+        });
+
+        function stripeTokenHandler(token) {
+            // Insert the token ID into the form so it gets submitted to the server
+            var form = document.querySelector('form');
+            var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', 'stripeToken');
+            hiddenInput.setAttribute('value', token.id);
+            form.appendChild(hiddenInput);
+
+            // Submit the form
+            form.submit();
+        }
+    </script></div>
+          </div>
+        </div>
+      </div>
+     </div>
+  </body>
+ </html>
+
